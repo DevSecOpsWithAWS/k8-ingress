@@ -25,7 +25,7 @@ spec:
 kind: Service
 apiVersion: v1
 metadata:
-  name: nginx
+  name: app1
 spec:
   selector: # labels are used as selectors
     app: app1
@@ -33,3 +33,29 @@ spec:
   - protocol: TCP
     port: 80 # service port
     targetPort: 80
+
+---
+
+appVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: minimal-ingress
+  annotations:
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS": 443}]'
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:us-east-1:445567082433:certificate/863888dc-5b84-44b7-8f5b-67a72b21b27f
+    alb.ingress.kubernetes.io/group.name: devsecopswithaws
+spec:
+  ingressClassName: alb
+  rules:
+  - host: "app1.sridevsecops.store"
+    http:
+      paths:
+      - pathType: Prefix
+        path: "/"
+        backend:
+          service:
+            name: app1
+            port:
+              number: 80
